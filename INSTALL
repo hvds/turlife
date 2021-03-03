@@ -1,0 +1,7 @@
+This code requires:
+* [perl](https://metacpan.org/pod/distribution/perl/pod/perl.pod)
+* [Tk](https://metacpan.org/pod/Tk)
+
+The application does not need to be installed: from the checkout you can
+run it as `./turlife`, or invoke it with an explicit perl binary via
+`/path/to/perl turlife`.

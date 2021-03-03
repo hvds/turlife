@@ -1,0 +1,40 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use lib 'lib';
+use TL::World;
+use TL::Organism;
+use TL::View;
+
+my $seed = shift(@ARGV) // 1;
+srand($seed);
+
+my $tl = TL::World->new({
+    # global options
+    metabolism => 4,
+    seed => $seed,  # for reporting
+
+    # initialization
+    #init_grid => ... default empty grid ...
+    init_life => [ TL::Organism->init(
+        [0, 0],     # location
+        0,          # facing direction
+        4,          # initial energy (and minimum for spawning)
+        .25,        # probability of spawning, if energy is high enough
+        join('; ', (    # the genome
+            '0S1 1S1',      # move away from parent
+            '0S2 0S2',
+            '0S3 0S3',
+            '0R4 1L0',      # try to evade if another child got here first
+            '1R5 1R5',      # go round 2x2 loop, gaining 1 energy per 4 ticks
+            '1R6 1R6',
+            '1R7 1R7',
+            '0R4 0R4',
+        )),
+    ) ],
+});
+
+my $v = TL::View->new($tl);
+$v->select_life(0, 0);
+Tk::MainLoop();

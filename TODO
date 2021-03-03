@@ -1,0 +1,23 @@
+find out font size
+- have option to set the font
+- have zoom options based on available font sizes
+
+mutate genome on copy
+
+set random seed
+reset run
+
+configure screen
+- set starting recipe: machine, start energy, min energy, spawn prob
+- set global options: seed, metabolism, ?copy cost, ?mutate rates
+
+clash resolution
+- can die, fight, combine, flee
+
+give organisms an id
+count steps
+watch for an id, or zoom forward to step
+
+option to colour an organism
+- children should inherit colour (with some %age restore to black)
+- cells should be coloured as the last organism to walk over them
