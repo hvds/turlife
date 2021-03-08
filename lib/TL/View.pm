@@ -232,6 +232,23 @@ sub control_view {
     my($self) = @_;
     return $self->{control_view} // do {
         my $cv = $self->{control_view} = $self->top_container->Frame;
+        $self->cv_top->pack(
+            -side => 'top',
+            -fill => 'x',
+        );
+        $self->cv_bottom->pack(
+            -side => 'bottom',
+            -fill => 'x',
+        );
+
+        $cv;
+    };
+}
+
+sub cv_top {
+    my($self) = @_;
+    return $self->{cv_top} // do {
+        my $cvtop = $self->{cv_top} = $self->control_view->Frame;
 
         for my $method (qw{ step_button run_button stop_button }) {
             my $w = $self->$method();
@@ -250,13 +267,22 @@ sub control_view {
             );
         }
 
-        $cv;
+        $cvtop;
+    };
+}
+
+sub cv_bottom {
+    my($self) = @_;
+    return $self->{cv_bottom} // do {
+        my $cvbottom = $self->{cv_bottom} = $self->control_view->Frame;
+
+        $cvbottom;
     };
 }
 
 sub step_button {
     my($self) = @_;
-    return $self->{step_button} //= $self->control_view->Button(
+    return $self->{step_button} //= $self->cv_top->Button(
         -text => 'Step',
         -command => sub { $self->step },
     );
@@ -264,7 +290,7 @@ sub step_button {
 
 sub run_button {
     my($self) = @_;
-    return $self->{run_button} //= $self->control_view->Button(
+    return $self->{run_button} //= $self->cv_top->Button(
         -text => 'Run',
         -command => sub {
             $self->run_button->configure(-state => 'disabled');
@@ -279,7 +305,7 @@ sub run_button {
 
 sub stop_button {
     my($self) = @_;
-    return $self->{stop_button} //= $self->control_view->Button(
+    return $self->{stop_button} //= $self->cv_top->Button(
         -text => 'Stop',
         -state => 'disabled',
         -command => sub {
@@ -294,7 +320,7 @@ sub stop_button {
 
 sub quit_button {
     my($self) = @_;
-    return $self->{quit_button} //= $self->control_view->Button(
+    return $self->{quit_button} //= $self->cv_top->Button(
         -text => 'Quit',
         -command => sub { $self->main_window->destroy },
     );
