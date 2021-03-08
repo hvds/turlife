@@ -257,23 +257,15 @@ sub cv_top {
     my($self) = @_;
     return $self->{cv_top} // do {
         my $cvtop = $self->{cv_top} = $self->control_view->Frame;
+        my @pack = (-expand => 'no', -pady => 2);
 
-        for my $method (qw{ step_button run_button stop_button }) {
-            my $w = $self->$method();
-            $w->pack(
-                -side => 'left',
-                -expand => 'no',
-                -pady => 2,
-            );
-        }
-        for my $method (qw{ quit_button }) {
-            my $w = $self->$method();
-            $w->pack(
-                -side => 'right',
-                -expand => 'no',
-                -pady => 2,
-            );
-        }
+        $self->step_button->pack(-side => 'left', @pack);
+        $self->run_button->pack(-side => 'left', @pack);
+        $self->stop_button->pack(-side => 'left', @pack);
+
+        $self->reset_button->pack(-side => 'right', @pack);
+        $self->seed_entry->pack(-side => 'right', @pack);
+        $cvtop->Label(-text => 'Seed:')->pack(-side => 'right', @pack);
 
         $cvtop;
     };
@@ -283,6 +275,15 @@ sub cv_bottom {
     my($self) = @_;
     return $self->{cv_bottom} // do {
         my $cvbottom = $self->{cv_bottom} = $self->control_view->Frame;
+
+        for my $method (qw{ quit_button }) {
+            my $w = $self->$method();
+            $w->pack(
+                -side => 'right',
+                -expand => 'no',
+                -pady => 2,
+            );
+        }
 
         $cvbottom;
     };
@@ -326,9 +327,35 @@ sub stop_button {
     );
 }
 
+sub seed_entry {
+    my($self) = @_;
+    return $self->{seed_entry} //= do {
+        my $se = $self->cv_top->Spinbox(
+            -from => 1,
+            -increment => 1,
+            -to => ~0,
+            -width => 5,
+        );
+        $se->set($self->world->seed);
+        $se;
+    };
+}
+
+sub reset_button {
+    my($self) = @_;
+    return $self->{reset_button} //= $self->cv_top->Button(
+        -text => 'Reset',
+        -command => sub {
+            $self->world->reset({ seed => $self->seed_entry->get });
+            $self->reset;
+            return;
+        },
+    );
+}
+
 sub quit_button {
     my($self) = @_;
-    return $self->{quit_button} //= $self->cv_top->Button(
+    return $self->{quit_button} //= $self->cv_bottom->Button(
         -text => 'Quit',
         -command => sub { $self->main_window->destroy },
     );
