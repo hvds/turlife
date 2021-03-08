@@ -7,17 +7,14 @@ use TL::World;
 use TL::Organism;
 use TL::View;
 
-my $seed = shift(@ARGV) // 1;
-srand($seed);
-
 my $tl = TL::World->new({
     # global options
     metabolism => 4,
-    seed => $seed,  # for reporting
+    seed => 1,
 
     # initialization
     #init_grid => ... default empty grid ...
-    init_life => [ TL::Organism->init(
+    init_life => [ [        # TL::Organism->init( ... )
         [0, 0],     # location
         0,          # facing direction
         4,          # initial energy (and minimum for spawning)
@@ -32,7 +29,7 @@ my $tl = TL::World->new({
             '1R7 1R7',
             '0R4 0R4',
         )),
-    ) ],
+    ] ],
 });
 
 my $v = TL::View->new($tl);

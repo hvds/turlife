@@ -6,16 +6,13 @@ use TL::CA::Life;
 
 sub new {
     my($class, $params) = @_;
-    my $where = {};
-    my $self = bless {
-        options => $params,
-        world => TL::CA::Life->new($params->{init_grid} // undef),
-        life => $params->{init_life} // [],
-        where => $where,
-        tick_count => 0,
-        state => 0,
-    }, $class;
-    $where->{join ':', @{ $_->location }} = $_ for @{ $self->life };
+    my $self = bless {}, $class;
+    $self->reset({
+        seed => $params->{seed} // 1,
+        metabolism => $params->{metabolism} // 4,
+        init_grid => $params->{init_grid} // undef,
+        init_life => $params->{init_life} // [],
+    });
     return $self;
 }
 
@@ -23,10 +20,33 @@ sub world { $_[0]->{world} }
 sub life { $_[0]->{life} }
 sub where { $_[0]->{where} }
 sub state { $_[0]->{state} }
-sub metabolism { $_[0]->{options}{metabolism} // 4 }
+sub seed { $_[0]->{seed} }
+sub metabolism { $_[0]->{metabolism} }
 sub step_count {
     my($self) = @_;
     return $self->{tick_count} * ($self->metabolism + 1) + $self->{state};
+}
+
+sub reset {
+    my($self, $params) = @_;
+    my %params = %{ $params // {} };
+    for (qw{ seed metabolism init_grid init_life }) {
+        $self->{$_} = $params->{$_} if exists $params->{$_};
+    }
+
+    srand($self->{seed});
+
+    $self->{world} = TL::CA::Life->new($self->{init_grid} // undef);
+    $self->{life} = [
+        map TL::Organism->init(@$_), @{ $self->{init_life} // [] }
+    ];
+    $self->{tick_count} = 0;
+    $self->{state} = 0;
+
+    my $where = {};
+    $where->{join ':', @{ $_->location }} = $_ for @{ $self->life };
+    $self->{where} = $where;
+    return;
 }
 
 sub read_cell {
