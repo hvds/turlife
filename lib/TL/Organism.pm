@@ -21,7 +21,7 @@ sub new {
 sub init {
     my($class, $location, $facing, $energy, $chance, $genome) = @_;
     return $class->new({
-        location => $location,
+        location => [ @$location ],
         facing => $facing,
         energy => $energy,
         needed => $energy,
