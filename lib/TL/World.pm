@@ -12,6 +12,7 @@ sub new {
         world => TL::CA::Life->new($params->{init_grid} // undef),
         life => $params->{init_life} // [],
         where => $where,
+        tick_count => 0,
         state => 0,
     }, $class;
     $where->{join ':', @{ $_->location }} = $_ for @{ $self->life };
@@ -23,6 +24,10 @@ sub life { $_[0]->{life} }
 sub where { $_[0]->{where} }
 sub state { $_[0]->{state} }
 sub metabolism { $_[0]->{options}{metabolism} // 4 }
+sub step_count {
+    my($self) = @_;
+    return $self->{tick_count} * ($self->metabolism + 1) + $self->{state};
+}
 
 sub read_cell {
     my($self, $x, $y) = @_;
@@ -48,8 +53,8 @@ sub life_tick {
 
 sub tick {
     my($self) = @_;
-    $self->world->tick; # advance the CA
     $self->life_tick for 1 .. $self->metabolism;
+    $self->world->tick; # advance the CA
     return;
 }
 
@@ -57,19 +62,19 @@ sub step {
     my($self, $step_size) = @_;
     my($state, $meta) = ($self->state, $self->metabolism);
     while ($step_size) {
-        if ($state == 0) {
-            if ($step_size > $meta + 1) {
-                $self->tick;
-                $step_size -= $meta + 1;
-            } else {
-                $self->world->tick;
-                --$step_size;
-                ++$state;
-            }
+        if ($state == 0 && $step_size > $meta + 1) {
+            $self->tick;
+            $step_size -= $meta + 1;
+            ++$self->{tick_count};
+        } elsif ($state == $meta) {
+            $self->world->tick;
+            --$step_size;
+            $state = 0;
+            ++$self->{tick_count};
         } else {
             $self->life_tick;
             --$step_size;
-            $state = ($state + 1) % ($meta + 1);
+            ++$state;
         }
     }
     $self->{state} = $state;

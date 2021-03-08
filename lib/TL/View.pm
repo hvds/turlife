@@ -126,7 +126,7 @@ sub life_view {
         my $lv = $self->{life_view}
                 = $self->world_container->Frame(-width => 100);
 
-        for my $v (qw{ x_view y_view cell_view energy_view }) {
+        for my $v (qw{ steps_view x_view y_view cell_view energy_view }) {
             my $w = $self->$v();
             $w->pack(
                 -side => 'top',
@@ -144,6 +144,11 @@ sub life_view {
     };
 }
 
+sub steps_view {
+    my($self) = @_;
+    return $self->{count_view}
+            //= TL::View::tl_Value->instance($self->life_view, 'steps');
+}
 sub x_view {
     my($self) = @_;
     return $self->{x_view}
@@ -360,11 +365,14 @@ sub render_world {
 
 sub render_life {
     my($self) = @_;
+    my $world = $self->world;
     my($loc, $org) = @{ $self->selected };
     my $cell;
 
     $loc = $org->location if $org && !$org->dead;
-    $cell = $self->world->world->read_cell(@$loc) if $loc;
+    $cell = $world->world->read_cell(@$loc) if $loc;
+
+    $self->steps_view->set_value($world->step_count);
 
     $self->x_view->set_value($loc ? $loc->[0] : undef);
     $self->y_view->set_value($loc ? $loc->[1] : undef);
