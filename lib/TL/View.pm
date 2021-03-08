@@ -9,13 +9,10 @@ sub new {
     my($class, $world) = @_;
     my $self = bless {
         world => $world,
-        centre => [ 0, 0 ],
-        step_size => 1,
-        selected => [ ],
-        font_size => [ 8, 8 ],   # assumed for now
     }, $class;
     # trigger window creation
     $self->main_window;
+    $self->reset;
     return $self;
 }
 sub world { $_[0]->{world} }
@@ -23,6 +20,17 @@ sub centre { $_[0]->{centre} }
 sub step_size { $_[0]->{step_size} }
 sub selected { $_[0]->{selected} }
 sub font_size { $_[0]->{font_size} }
+
+sub reset {
+    my($self) = @_;
+    $self->{centre} = [0, 0];
+    $self->{step_size} = 1;
+    $self->{font_size} = [8, 8];    # assumed for now
+    $self->select_life(0, 0);
+    $self->render_world;
+    $self->render_life;
+    return;
+}
 
 sub main_window {
     my($self) = @_;
